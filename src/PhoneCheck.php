@@ -73,7 +73,7 @@ final class PhoneCheck
      * merchant. The page needs to know what to do about this order, not how
      * the score was built.
      *
-     * Identical to `forBrowser()` in @numra/core, so @numra/react renders a
+     * Identical to `forBrowser()` in @getnumra/core, so @getnumra/react renders a
      * PHP backend's response with no adapter in between.
      */
     public function toBrowserArray(): array

@@ -128,10 +128,10 @@ The header lookup is genuinely case-insensitive and understands the `$_SERVER`
 spelling (`HTTP_NUMRA_SIGNATURE`) as well as PSR-7 array values, because PHP
 hands you a different case depending on where you read from.
 
-## Serving `@numra/react` from PHP
+## Serving `@getnumra/react` from PHP
 
 `Numra\Handlers` is the framework-neutral endpoint — the PHP twin of
-`createHandlers` in `@numra/core`. It returns `['status' => int, 'body' =>
+`createHandlers` in `@getnumra/core`. It returns `['status' => int, 'body' =>
 array]` and never throws, so a controller is three lines.
 
 ```php
@@ -162,7 +162,7 @@ Keep the key in the environment and out of version control. A key committed
 once is in the history of every clone of that repository, and rotating it is
 the only fix.
 
-The response `check()` hands back has exactly the keys `@numra/react` expects,
+The response `check()` hands back has exactly the keys `@getnumra/react` expects,
 so the React components render a PHP backend with no adapter in between.
 
 ## Release notes
@@ -193,11 +193,11 @@ Server:
 
 | Package | Repository |
 |---|---|
-| `@numra/core` | [numra-js-core](https://github.com/NumraApp/numra-js-core) |
-| `@numra/express` | [numra-express](https://github.com/NumraApp/numra-express) |
-| `@numra/fastify` | [numra-fastify](https://github.com/NumraApp/numra-fastify) |
-| `@numra/next` | [numra-next](https://github.com/NumraApp/numra-next) |
-| `@numra/nuxt` | [numra-nuxt](https://github.com/NumraApp/numra-nuxt) |
+| `@getnumra/core` | [numra-js-core](https://github.com/NumraApp/numra-js-core) |
+| `@getnumra/express` | [numra-express](https://github.com/NumraApp/numra-express) |
+| `@getnumra/fastify` | [numra-fastify](https://github.com/NumraApp/numra-fastify) |
+| `@getnumra/next` | [numra-next](https://github.com/NumraApp/numra-next) |
+| `@getnumra/nuxt` | [numra-nuxt](https://github.com/NumraApp/numra-nuxt) |
 | `numra/numra-php` | [numra-php](https://github.com/NumraApp/numra-php) — this repo |
 | `numra/laravel` | [numra-laravel](https://github.com/NumraApp/numra-laravel) |
 
@@ -205,11 +205,11 @@ Browser:
 
 | Package | Repository |
 |---|---|
-| `@numra/browser` | [numra-browser](https://github.com/NumraApp/numra-browser) |
-| `@numra/react` | [numra-react](https://github.com/NumraApp/numra-react) |
-| `@numra/vue` | [numra-vue](https://github.com/NumraApp/numra-vue) |
-| `@numra/svelte` | [numra-svelte](https://github.com/NumraApp/numra-svelte) |
-| `@numra/angular` | [numra-angular](https://github.com/NumraApp/numra-angular) |
+| `@getnumra/browser` | [numra-browser](https://github.com/NumraApp/numra-browser) |
+| `@getnumra/react` | [numra-react](https://github.com/NumraApp/numra-react) |
+| `@getnumra/vue` | [numra-vue](https://github.com/NumraApp/numra-vue) |
+| `@getnumra/svelte` | [numra-svelte](https://github.com/NumraApp/numra-svelte) |
+| `@getnumra/angular` | [numra-angular](https://github.com/NumraApp/numra-angular) |
 
 Documentation for all of them is at [numra.ma/docs](https://numra.ma/docs).
 

@@ -8,7 +8,7 @@ namespace Numra;
  * Why a webhook was not accepted.
  *
  * Separate from NumraError because these are not API failures — nothing was
- * called. The `reason` is the stable surface and matches @numra/core exactly:
+ * called. The `reason` is the stable surface and matches @getnumra/core exactly:
  * missing_signature, missing_timestamp, bad_timestamp, expired,
  * invalid_signature, body_not_raw.
  */

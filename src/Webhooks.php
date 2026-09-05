@@ -27,7 +27,7 @@ namespace Numra;
  *   3. Ignoring the timestamp. The signature then stays valid for ever, so a
  *      captured "not blacklisted" payload can be replayed at will.
  *
- * Ported from @numra/core's webhooks.js, which is the reference.
+ * Ported from @getnumra/core's webhooks.js, which is the reference.
  */
 final class Webhooks
 {

@@ -54,7 +54,7 @@ one package of twelve.
   facade, the artisan command — belongs in
   [numra-laravel](https://github.com/NumraApp/numra-laravel), which is a thin
   layer over this package.
-- The response `Handlers::check()` returns is consumed by `@numra/react` and
+- The response `Handlers::check()` returns is consumed by `@getnumra/react` and
   its siblings. Changing its shape is a change to
   [numra-browser](https://github.com/NumraApp/numra-browser) as well.
 

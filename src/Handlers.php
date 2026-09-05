@@ -7,7 +7,7 @@ namespace Numra;
 /**
  * Framework-neutral request handling.
  *
- * The PHP twin of @numra/core's createHandlers. Laravel, Symfony, Slim and a
+ * The PHP twin of @getnumra/core's createHandlers. Laravel, Symfony, Slim and a
  * plain front controller all do the same four things — authorise, call Numra,
  * narrow the result for the browser, translate upstream failures — and written
  * four times they drift. The one that drifts silently is *deny by default*,
@@ -23,7 +23,7 @@ final class Handlers
     public const NOT_CONFIGURED_DEFAULT_USAGE =
         'new Handlers($numra, authorize: fn ($ctx) => (bool) auth()->check())';
 
-    /* Kept in step with MAX_PHONE_LENGTH in @numra/core's client.js. A
+    /* Kept in step with MAX_PHONE_LENGTH in @getnumra/core's client.js. A
        Moroccan number is ten digits; this is generous for any spelling and
        small enough that nothing can be smuggled through the field. */
     public const MAX_PHONE_LENGTH = 32;

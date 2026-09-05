@@ -11,7 +11,7 @@ namespace Numra;
  * worth stealing; it must never be echoed into a page, a JS bundle, or a
  * template variable.
  *
- * Ported from @numra/core, deliberately decision-for-decision: same error
+ * Ported from @getnumra/core, deliberately decision-for-decision: same error
  * codes, same retry policy, same idempotency rules, same webhook scheme. Two
  * clients that disagree about what a 429 means are two clients that behave
  * differently on the worst day of the month.
@@ -115,7 +115,7 @@ final class Numra
     {
         /* Unset optionals are dropped, not sent as null — including inside
            `context`. This is parity, not taste: JSON.stringify drops
-           `undefined`, so @numra/core has never sent those keys, and a PHP
+           `undefined`, so @getnumra/core has never sent those keys, and a PHP
            client that starts sending explicit nulls is a second client with a
            different wire shape. The whole point of porting decision-for-
            decision is that the API sees one request either way. */

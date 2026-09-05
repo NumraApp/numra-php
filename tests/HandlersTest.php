@@ -9,7 +9,7 @@ use Numra\Numra;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The PHP half of the guarantee @numra/core's server.js makes in JS: deny by
+ * The PHP half of the guarantee @getnumra/core's server.js makes in JS: deny by
  * default, translate rather than relay, and never hand the browser more than
  * it needs.
  */
@@ -107,7 +107,7 @@ final class HandlersTest extends TestCase
            engine diagnostics. Neither is the browser's business. */
         self::assertArrayNotHasKey('raw', $out['body']);
         self::assertArrayNotHasKey('risk_score_raw', $out['body']);
-        /* Identical key set to @numra/core's forBrowser, so @numra/react
+        /* Identical key set to @getnumra/core's forBrowser, so @getnumra/react
            renders a PHP backend with no adapter in between. */
         self::assertSame(
             ['phone', 'verdict', 'riskLevel', 'riskScore', 'trustScore', 'confidence', 'isRated', 'isBlacklisted', 'customerStyle'],

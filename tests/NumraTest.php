@@ -64,7 +64,7 @@ final class NumraTest extends TestCase
 
     public function testUnsetOptionalsAreDroppedNotSentAsNull(): void
     {
-        /* Parity with @numra/core: JSON.stringify drops undefined, so the API
+        /* Parity with @getnumra/core: JSON.stringify drops undefined, so the API
            has never seen these keys. Including inside `context`. */
         [$numra, $t] = $this->client([['body' => Fixtures::LOOKUP_OK]]);
         $numra->check('0600000000', ['context' => ['orderTotal' => 250.0]]);

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Numra;
 
 /**
- * The error taxonomy, ported from @numra/core so the two families agree.
+ * The error taxonomy, ported from @getnumra/core so the two families agree.
  *
  * Catch on `getCode()`, never on the message. openapi.yaml says it plainly:
  * the code is the stable surface, the message is written for humans and

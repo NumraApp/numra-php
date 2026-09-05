@@ -1,0 +1,41 @@
+{
+  "name": "numra/numra-php",
+  "description": "Numra PHP client — cash-on-delivery risk checks, outcome reporting and webhook verification for Morocco.",
+  "type": "library",
+  "license": "MIT",
+  "homepage": "https://numra.ma",
+  "keywords": ["numra", "cod", "fraud", "morocco", "risk"],
+  "authors": [
+    { "name": "Numra", "homepage": "https://numra.ma", "role": "Maintainer" }
+  ],
+  "support": {
+    "issues": "https://github.com/NumraApp/numra-php/issues",
+    "source": "https://github.com/NumraApp/numra-php",
+    "docs": "https://numra.ma/docs"
+  },
+  "require": {
+    "php": ">=8.1",
+    "ext-curl": "*",
+    "ext-json": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.5"
+  },
+  "autoload": {
+    "psr-4": { "Numra\\": "src/" }
+  },
+  "autoload-dev": {
+    "psr-4": { "Numra\\Tests\\": "tests/" }
+  },
+  "extra": {
+    "numra": {
+      "version-note": "There is deliberately no `version` field. Packagist takes the version from the git tag and `composer validate --strict` rejects a declared one, so carrying it here fails CI before it reaches the registry. The only thing that ever needed a real version was the path repository in numra-laravel, and that is gone. The release workflow already refuses a tag that disagrees with Numra::VERSION, which is the check that actually matters."
+    }
+  },
+  "scripts": {
+    "test": "phpunit"
+  },
+  "config": {
+    "sort-packages": true
+  }
+}

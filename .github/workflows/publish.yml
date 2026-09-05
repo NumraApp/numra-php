@@ -1,0 +1,166 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# Release pipeline for one Composer SDK
+# ───────────────────────────────────────────────────────────────────────────
+# Copy to .github/workflows/publish.yml in each PHP SDK's own repo. A template
+# rather than a shared reusable workflow, for the same reason as the npm one:
+# repos that all pull a workflow from one more repo means a single bad edit
+# stops every release at once.
+#
+# HOW PACKAGIST DIFFERS FROM NPM
+# There is no `publish` command. Packagist reads the git tag, so pushing the
+# tag IS the release — which means the gate has to run BEFORE the tag lands,
+# or a broken version is already public by the time the tests fail. So this
+# workflow runs on every push and pull request as well as on tags, and the
+# tag job only tells Packagist to re-scan once the same checks have passed.
+#
+# THE GATE THAT MATTERS
+# `conformance` runs before anything is announced. Every client in the family
+# is built from packages/shared/openapi.yaml, and one that has drifted from it
+# will pass its own unit tests and then disagree with the API in production
+# about what a 429 means.
+# ═══════════════════════════════════════════════════════════════════════════
+
+name: Publish
+
+# ── Actions are pinned to full commit SHAs, not tags ──────────────────────────
+# A tag is mutable: whoever controls the action's repository can repoint `v4` at
+# any commit, and that commit then runs inside a job holding NPM_TOKEN and
+# `id-token: write`. This is a package that reads a fraud database — the tag
+# comment after each SHA is for humans, and the SHA is what actually runs.
+#
+# Resolved with `git ls-remote --tags <repo> <tag>` on 4 September 2026.
+# To move one: re-run that, replace the SHA, update the comment.
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The floor is declared in composer.json; test it, or "PHP 8.1 or
+        # newer" is an aspiration rather than a fact.
+        php: ['8.1', '8.2', '8.3', '8.4']
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: curl, json, zip
+          coverage: none
+
+      - run: composer validate --strict
+      - run: composer install --no-interaction --prefer-dist
+      - run: vendor/bin/phpunit --no-coverage
+
+      - name: Conformance against the API contract
+        # The spec lives in the platform monorepo. Vendored here at the commit
+        # this SDK was verified against; see CONTRIBUTING.md.
+        run: |
+          if [ -f scripts/openapi-conformance.js ]; then
+            node scripts/openapi-conformance.js
+          else
+            echo "::error::openapi-conformance.js is missing from this repo."
+            echo "It is the only thing stopping this client from drifting away"
+            echo "from the API it claims to speak. Vendor it before releasing."
+            exit 1
+          fi
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
+        with:
+          php-version: '8.3'
+          extensions: curl, json, zip
+          coverage: none
+
+      - name: Tag must match the VERSION constant
+        # The constant is what every request puts in its User-Agent, and what
+        # the portal manifest is stamped from. A tag that disagrees with it
+        # publishes a version the platform can never report.
+        #
+        # Read out of the source rather than by `php -r 'require ...'`: this
+        # job never runs `composer install`, so there is no autoloader, and
+        # numra/laravel's constant lives on a class that extends Illuminate's
+        # ServiceProvider — requiring that file with no parent class on disk is
+        # a fatal error, not a version. Same technique as the WordPress
+        # template uses on the plugin header.
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          SRC=$(grep -oP "const\s+VERSION\s*=\s*'\K[^']+" "$VERSION_FILE" | head -1)
+          if [ -z "$SRC" ]; then
+            echo "::error::No VERSION constant found in $VERSION_FILE."
+            exit 1
+          fi
+          if [ "$TAG" != "$SRC" ]; then
+            echo "::error::Tag v$TAG does not match the VERSION constant in $VERSION_FILE ($SRC)."
+            exit 1
+          fi
+        env:
+          VERSION_FILE: src/Numra.php
+
+      # Packagist already has the tag from the push. This only asks it to look
+      # now rather than on its own schedule, so the portal and the registry
+      # agree within seconds instead of hours.
+      - name: Ask Packagist to update
+        # --fail-with-body, because without it curl exits 0 on a 403 and a
+        # rotated token produces a green release that Packagist never acted on:
+        # the tag is public, the registry still serves the previous version,
+        # and nothing anywhere says so. The body is printed because Packagist's
+        # error text is the only thing that distinguishes a bad token from a
+        # bad package name.
+        #
+        # The credentials are in the query string because that is the only
+        # place Packagist's update-package API accepts them — there is no
+        # header form. They are secrets, so they are masked in the log, but
+        # this is why the URL looks like that; do not "fix" it into a header.
+        run: |
+          curl -sS --fail-with-body -XPOST -H'content-type:application/json' \
+            "https://packagist.org/api/update-package?username=$PACKAGIST_USER&apiToken=$PACKAGIST_TOKEN" \
+            -d "{\"repository\":{\"url\":\"https://packagist.org/packages/$PACKAGE\"}}"
+        env:
+          PACKAGIST_USER: ${{ secrets.PACKAGIST_USER }}
+          PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
+          PACKAGE: numra/numra-php
+
+      # THE ENDPOINT DOES NOT EXIST YET — see publish-npm.yml for the full
+      # note. Conditional rather than aspirational: unset, it says loudly what
+      # did not happen; set, a 404 fails the release instead of passing
+      # silently.
+      - name: Stamp the platform manifest
+        run: |
+          if [ -z "${NUMRA_STAMP_URL}" ]; then
+            {
+              echo "### Manifest not stamped"
+              echo ""
+              echo "\`NUMRA_STAMP_URL\` is unset, so the portal still shows the"
+              echo "previous version of \`${MANIFEST_KEY}\`. Update it by hand,"
+              echo "or add the release-intake endpoint and set the secret."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::Manifest not stamped — NUMRA_STAMP_URL is unset."
+            exit 0
+          fi
+          curl -sS --fail-with-body -X POST "$NUMRA_STAMP_URL" \
+            -H "Authorization: Bearer $NUMRA_STAMP_TOKEN" \
+            -H 'Content-Type: application/json' \
+            -d "{\"key\":\"$MANIFEST_KEY\",\"package\":\"$PACKAGE\",\"version\":\"$GITHUB_REF_NAME\",\"kind\":\"composer\"}"
+        env:
+          NUMRA_STAMP_URL: ${{ secrets.NUMRA_STAMP_URL }}
+          NUMRA_STAMP_TOKEN: ${{ secrets.NUMRA_STAMP_TOKEN }}
+          MANIFEST_KEY: numra-php
+          PACKAGE: numra/numra-php

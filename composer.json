@@ -11,7 +11,7 @@
   "support": {
     "issues": "https://github.com/NumraApp/numra-php/issues",
     "source": "https://github.com/NumraApp/numra-php",
-    "docs": "https://numra.ma/docs"
+    "docs": "https://docs.numra.ma"
   },
   "require": {
     "php": ">=8.1",
